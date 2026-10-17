@@ -133,4 +133,6 @@ body.tv .gt{grid-template-columns:repeat(4,1fr)}body.tv .tile .big{font-size:40p
 }
 body.tv .ovl{column-count:2;column-gap:28px}body.tv .ovl details{break-inside:avoid}body.tv .ovl>h3{column-span:all}
 body.tv section.pg.cur{display:flex;flex-direction:column}body.tv section.pg.cur>:last-child{flex:1}
-body.tv section.pg.cur>:last-child.grid>.card{display:flex;flex-direction:column}
+body.tv section.pg.cur>:last-child.grid>.card:not(.oq2):not(.ovl){display:flex;flex-direction:column}
+@media (max-width:900px){.grid.g2.wl,.grid.g2.wr{grid-template-columns:1fr}}
+body.tv section[data-k^="dollars"] .note{display:none}
