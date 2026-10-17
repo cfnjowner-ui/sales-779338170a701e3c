@@ -195,3 +195,6 @@ body.tv .sl{font-size:16px}body.tv .sl .a small,body.tv .sl .u small{font-size:1
 body.tv .fxw div{font-size:14px}body.tv .fxw b{font-size:22px}body.tv .fxwt{font-size:15px}
 .sl{grid-template-columns:76px minmax(0,1fr) 70px minmax(0,2fr) 84px}.sl .ref{white-space:nowrap}
 .sl .wh{display:flex;flex-wrap:wrap;gap:3px}
+
+.pendtx{color:#2e8a5a;background:repeating-linear-gradient(45deg,#e3f5ea,#e3f5ea 4px,#f3fbf6 4px,#f3fbf6 8px);padding:0 4px;border-radius:4px}
+.c-pend{background:repeating-linear-gradient(45deg,#4fb37d,#4fb37d 5px,#a9dcc0 5px,#a9dcc0 10px)}
