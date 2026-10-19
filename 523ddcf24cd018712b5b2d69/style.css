@@ -233,3 +233,14 @@ body.tv .hl{font-size:16px;grid-template-columns:minmax(0,1fr) 110px minmax(0,2f
 body.tv ul.pcl{font-size:16px}body.tv .dowrow{font-size:15px}body.tv .tbl.pct{font-size:16px}
 .stackc{display:flex;flex-direction:column;gap:10px;min-width:0}.hins{font-size:12.5px;margin:8px 0 0;line-height:1.4}body.tv .hins{font-size:17px}
 @media (max-width:700px){.hl .ref{font-size:10.5px;white-space:nowrap}.hl{grid-template-columns:minmax(0,1fr) auto}.tbl.rt th:nth-child(3),.tbl.rt td:nth-child(3),.tbl.rt th:nth-child(7),.tbl.rt td:nth-child(7){display:none}}
+
+/* goal-back plan card */
+.plan .plk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 12px;margin:4px 0 8px}.plan .plk div{display:flex;flex-direction:column}.plan .plk span{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}.plan .plk b{font-size:17px;font-variant-numeric:tabular-nums}
+@media(min-width:900px){.plan .plk{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.plg{display:grid;grid-template-columns:1fr;column-gap:22px}@media(min-width:1100px){.plg{grid-template-columns:1fr 1fr}}
+.pll{display:grid;grid-template-columns:minmax(110px,1.1fr) minmax(0,1.6fr) minmax(0,1.2fr) 70px;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid #f0ece2;font-size:12.5px}
+.pll.hd{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:600;border-bottom:0}
+.pll .nm{font-weight:600}.pll .t{font-variant-numeric:tabular-nums;text-align:right;font-size:12px}
+.pll .b1{position:relative;height:9px;background:#eee9dc;border-radius:5px}.pll .b1 i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:#12263f}.pll .b1 u{position:absolute;top:-3px;bottom:-3px;width:3px;margin-left:-1px;background:#7b3fa0;border-radius:2px}
+@media(max-width:700px){.pll{grid-template-columns:minmax(0,1fr) auto auto;gap:2px 10px}.pll .b1{grid-column:1/4;order:3}.pll.hd{display:none}}
+body.tv .pll{font-size:16px;padding:3px 0}body.tv .pll .t{font-size:15px}body.tv .plan .plk b{font-size:22px}
