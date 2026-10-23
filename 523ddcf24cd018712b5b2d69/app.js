@@ -326,7 +326,37 @@ S.month=function(part){var M=D.month,s=M.stats,pv=M.prior_same,pf=M.prior_full,p
  var oq='<div class="card"><h3>Quoted this month, still open <small>'+M.open_quoted.n+' deals · '+m(M.open_quoted.usd)+' · top 12 by $</small></h3>'+M.open_quoted.items.slice(0,12).map(function(i){return item(i)}).join('')+'</div>';
  var c='<div class="grid g2">'+wins+oq+'</div>';
  if(part==='c')return c;
- return ban+S.pace()+'<div style="margin-top:10px">'+S.heat()+'</div>'+S.focus()+S.progCard()+'<div style="margin-top:10px">'+a.slice(ban.length)+'</div>'+T+'<div class="grid g2" style="margin-top:10px"><div class="stack">'+cmp+src+wins+'</div>'+dsg+'</div><div style="margin-top:10px">'+oq.replace('class="card"','class="card oq2"')+'</div>'};
+ return ban+S.kpi()+S.pace()+'<div style="margin-top:10px">'+S.heat()+'</div>'+S.focus()+S.progCard()+'<div style="margin-top:10px">'+a.slice(ban.length)+'</div>'+T+'<div class="grid g2" style="margin-top:10px"><div class="stack">'+cmp+src+wins+'</div>'+dsg+'</div><div style="margin-top:10px">'+oq.replace('class="card"','class="card oq2"')+'</div>'};
+// ── KPI METERS vs GOAL (Oct 23 2026; goals from kpi_goals.json -> data.kpi; hidden when data.kpi is absent)
+S.kpi=function(){var K=D.kpi;if(!K||!K.store)return '';var G=K.goals,St=K.store;
+ function bar(v,goal,max,st,thin){var w=v==null?0:Math.max(0,Math.min(v/max,1))*100,gl=Math.min(goal/max,1)*100;
+  return '<div class="kmb'+(thin?' thin':'')+'"><i class="k'+st+'" style="width:'+w.toFixed(1)+'%"></i><b style="left:'+gl.toFixed(1)+'%" title="goal"></b>'+(v!=null&&v>max?'<em>▲</em>':'')+'</div>'}
+ function pr(v){return v==null?'—':(v>1?'100%+':p(v))}
+ function meter(lab,v,txt,goal,max,st,nn){return '<div class="km"><div class="kmh"><span class="kml">'+lab+'</span><span class="kmv k'+st+'t">'+txt+'</span></div>'+bar(v,goal,max,st)+'<div class="kmn">'+nn+'</div></div>'}
+ var amax=G.avg_sale.goal*1.4;
+ function card(title,sub,body){return '<div class="card kc"><h3>'+title+' <small>'+sub+'</small></h3>'+body+'</div>'}
+ var cr=card('Close rate',G.close_rate.label,
+   meter('October MTD',St.mtd.rate,p(St.mtd.rate),G.close_rate.goal,1,St.mtd.rate_st,n(St.mtd.rate_k)+' of '+n(St.mtd.rate_n)+' held first appts · runs low until this month\'s appts mature')+
+   meter('Year to date',St.ytd.rate,p(St.ytd.rate),G.close_rate.goal,1,St.ytd.rate_st,n(St.ytd.rate_k)+' of '+n(St.ytd.rate_n)+' · Jan–Jun '+p(St.janjun.rate)+' ('+n(St.janjun.rate_k)+' of '+n(St.janjun.rate_n)+')'));
+ var av=card('Average sale',G.avg_sale.label,
+   meter('October MTD',St.mtd.avg,mf(St.mtd.avg),G.avg_sale.goal,amax,St.mtd.avg_st,n(St.mtd.avg_n)+' sales · '+m(St.mtd.usd))+
+   meter('Year to date',St.ytd.avg,mf(St.ytd.avg),G.avg_sale.goal,amax,St.ytd.avg_st,n(St.ytd.avg_n)+' sales · '+m(St.ytd.usd)));
+ var cv=card('Conversion',G.conversion.label+' · new opp → held 1st appt',
+   meter('October MTD',St.mtd.conv,p(St.mtd.conv),G.conversion.goal,1,St.mtd.conv_st,n(St.mtd.conv_k)+' of '+n(St.mtd.conv_n)+' new opps'+(St.mtd.conv_pend?' · '+n(St.mtd.conv_pend)+' more booked ahead':''))+
+   meter('Year to date',St.ytd.conv,p(St.ytd.conv),G.conversion.goal,1,St.ytd.conv_st,n(St.ytd.conv_k)+' of '+n(St.ytd.conv_n)+' new opps'));
+ var h='<div class="card kpi" id="kpi"><h3>📏 Where we are vs goal <small>store · October MTD and year to date <span class="kleg"><i class="kg"></i>at/above goal <i class="ka"></i>slightly below <i class="kr"></i>well below <b></b>goal</span></small></h3><div class="kgrid">'+cr+av+cv+'</div>';
+ // by lead type
+ function row(lab,v,txt,goal,max,st,nn){return '<div class="kr2"><span class="kl">'+lab+'</span>'+bar(v,goal,max,st,1)+'<span class="kv k'+st+'t">'+txt+'</span><span class="kn">'+nn+'</span></div>'}
+ var T=K.types.map(function(t){var a=t.mtd,y=t.ytd,b='';
+  if(t.no_appt){b+='<div class="kna">Close rate: no appointments (these sales count in the store close rate: '+n(a.rate_k)+' MTD, '+n(y.rate_k)+' YTD)</div>'}
+  else{b+='<div class="ksub">Close rate <small>goal '+p(G.close_rate.goal,0)+'</small></div>'+row('MTD',a.rate,pr(a.rate),G.close_rate.goal,1,a.rate_st,a.rate_k+' of '+a.rate_n)+row('YTD',y.rate,pr(y.rate),G.close_rate.goal,1,y.rate_st,y.rate_k+' of '+y.rate_n)}
+  b+='<div class="ksub">Average sale <small>goal '+mf(G.avg_sale.goal)+'</small></div>'+row('MTD',a.avg,mf(a.avg),G.avg_sale.goal,amax,a.avg_st,a.avg_n+' sales')+row('YTD',y.avg,mf(y.avg),G.avg_sale.goal,amax,y.avg_st,y.avg_n+' sales');
+  if(!t.no_appt)b+='<div class="ksub">Conversion <small>goal '+p(G.conversion.goal,0)+'</small></div>'+row('MTD',a.conv,p(a.conv,0),G.conversion.goal,1,a.conv_st,a.conv_k+' of '+a.conv_n)+row('YTD',y.conv,p(y.conv,0),G.conversion.goal,1,y.conv_st,y.conv_k+' of '+y.conv_n);
+  var dag=(y.rate!=null&&y.rate>1)||(a.rate!=null&&a.rate>1);
+  return '<div class="kt"><div class="ktt">'+esc(t.src)+(t.merged&&t.merged.length?' <small>incl. '+esc(t.merged.join(', '))+'</small>':'')+'</div>'+b+(dag?'<div class="kna">100%+: more sales than logged first appointments (sales entered without an appointment count as held).</div>':'')+(a.rate_n&&a.rate_n<10&&!t.no_appt?'<div class="kna">Small MTD sample: read the YTD line.</div>':'')+'</div>'}).join('');
+ h+='<h3 style="margin-top:14px">By lead type <small>same goals · n shown on every bar · MTD samples are small, YTD is the steadier read</small></h3><div class="ktypes">'+T+'</div>';
+ h+='<div class="note kdef"><b>How these are measured.</b> '+esc(K.defs.close_rate)+' '+esc(K.defs.avg_sale)+' '+esc(K.defs.conversion)+' Lead-record view for reference: '+p(St.mtd.lead_conv.rate,0)+' MTD ('+n(St.mtd.lead_conv.k)+' of '+n(St.mtd.lead_conv.n)+'), '+p(St.ytd.lead_conv.rate,0)+' YTD ('+n(St.ytd.lead_conv.k)+' of '+n(St.ytd.lead_conv.n)+'); it includes unqualified and duplicate leads, so it is not the goal number. Lead type = the board\'s source grouping (ClosetWare source type + category). Colors: at/above goal green; up to '+Math.round(K.bands.rate_pts*100)+' pts (rates) or '+Math.round(K.bands.avg_pct*100)+'% (average sale) below goal amber; further below red. Goals: close rate '+p(G.close_rate.goal,0)+', average sale '+mf(G.avg_sale.goal)+', conversion '+p(G.conversion.goal,0)+' (set by Andrew).</div></div>';
+ return h};
 function ratio0(a,b){return b?a/b:null}
 function sigCard(G){if(!G)return '';
  var h='<div class="card sigc" style="margin-top:10px"><h3>✍️ Signed, not yet in ClosetWare <small>DocuSign contracts signed this month'+(G.mail_asof?' · mail checked '+esc(G.mail_asof):'')+'</small></h3>';
