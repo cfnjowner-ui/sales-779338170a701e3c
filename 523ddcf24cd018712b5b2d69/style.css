@@ -279,4 +279,9 @@ body.tv .cmbig{font-size:46px}body.tv .cmf{font-size:16px}body.tv .cmf b{font-si
 @media (max-width:600px){.cmc .cmg{grid-template-columns:1fr;gap:10px}.cmparts{grid-template-columns:1fr;grid-column:auto;gap:6px}.cmper{order:2;flex-direction:row;gap:14px}.cmper>div{flex:1}.cmbig{font-size:28px}.cmp{padding:6px 9px}}
 /* charts under the KPI meters (Oct 25 2026): progression then fan chart, stacked full width */
 .kpich{display:flex;flex-direction:column;gap:10px;margin:10px 0;min-width:0}
-.kpich>.card{margin:0;min-width:0}
+.kpich .card{margin:0;min-width:0}
+.kcrow{display:grid;grid-template-columns:1fr;gap:10px;min-width:0}
+@media (min-width:1100px){.kcrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}.kcinfo{align-items:start}}
+.kc-info .ihead{margin-bottom:4px}
+.kc-strip .mcard{padding:6px 8px}
+.kc-prog h3,.kcrow .pcfan h3{min-height:30px}
