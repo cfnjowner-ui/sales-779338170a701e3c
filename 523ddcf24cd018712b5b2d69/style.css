@@ -252,7 +252,7 @@ body.tv .pll{font-size:16px;padding:3px 0}body.tv .pll .t{font-size:15px}body.tv
 .kmb{position:relative;height:16px;background:#e8e3d6;border-radius:8px;margin:5px 0 4px}.kmb.thin{height:9px;margin:0}.kmb i{display:block;height:100%;border-radius:8px}
 .kmb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#14171c;border-radius:1px}.kmb.thin b{top:-3px;bottom:-3px;width:2px}.kmb em{position:absolute;right:2px;top:-1px;font-size:10px;font-style:normal;color:#fff}
 .kmn{font-size:11.5px;color:var(--mut)}
-.kg{background:var(--g)}.ka{background:var(--amb)}.kr{background:var(--r)}.kna{background:#b9b4a6}
+.kg{background:var(--g)}.ka{background:var(--amb)}.kr{background:var(--r)}.kna{background:#b9b4a6}.kz{background:#6f7f95}.kzt{color:var(--ink,#14171c)}
 i.kna{background:#b9b4a6}.kgt{color:var(--g)}.kat{color:#b06f00}.krt{color:var(--r)}.knat{color:var(--mut)}
 .kleg{white-space:nowrap}.kleg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 3px 0 8px;vertical-align:-1px}.kleg b{display:inline-block;width:3px;height:11px;background:#14171c;margin:0 3px 0 8px;vertical-align:-1px}.kleg b:after{content:''}
 .ktypes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}.kt{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff}
@@ -285,3 +285,9 @@ body.tv .cmbig{font-size:46px}body.tv .cmf{font-size:16px}body.tv .cmf b{font-si
 .kc-info .ihead{margin-bottom:4px}
 .kc-strip .mcard{padding:6px 8px}
 .kc-prog h3,.kcrow .pcfan h3{min-height:30px}
+
+/* Lead conversion (ClosetWare) / lead to held / cancel-no-show (Oct 26 2026): neutral, no goal */
+.klc{margin-top:10px}.klc .ksub{margin-top:8px}.kzr{grid-template-columns:30px minmax(0,1fr) 44px 86px}.kexp{font-size:11px;color:var(--mut);margin:6px 2px 0;line-height:1.4}
+.kc .kmn+.kmn{margin-top:4px}
+@media (min-width:1100px){.kt .kzr{grid-template-columns:22px minmax(20px,1fr) 38px 56px}}
+@media (max-width:900px){.klc{grid-template-columns:1fr}}
