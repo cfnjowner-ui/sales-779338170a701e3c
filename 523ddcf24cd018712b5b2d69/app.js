@@ -339,7 +339,7 @@ S.month=function(part){var M=D.month,s=M.stats,pv=M.prior_same,pf=M.prior_full,p
  var oq='<div class="card"><h3>Quoted this month, still open <small>'+M.open_quoted.n+' deals · '+m(M.open_quoted.usd)+' · top 12 by $</small></h3>'+M.open_quoted.items.slice(0,12).map(function(i){return item(i)}).join('')+'</div>';
  var c='<div class="grid g2">'+wins+oq+'</div>';
  if(part==='c')return c;
- return ban+S.kpi()+S.kpiCharts()+S.pace('m')+'<div style="margin-top:10px">'+S.heat()+'</div>'+S.focus()+'<div style="margin-top:10px">'+a.slice(ban.length)+'</div>'+CMC+T+'<div class="grid g2" style="margin-top:10px"><div class="stack">'+cmp+src+wins+'</div>'+dsg+'</div><div style="margin-top:10px">'+oq.replace('class="card"','class="card oq2"')+'</div>'};
+ var KPH=S.kpi();return (S.lcTop||'')+ban+KPH+S.kpiCharts()+S.pace('m')+'<div style="margin-top:10px">'+S.heat()+'</div>'+S.focus()+'<div style="margin-top:10px">'+a.slice(ban.length)+'</div>'+CMC+T+'<div class="grid g2" style="margin-top:10px"><div class="stack">'+cmp+src+wins+'</div>'+dsg+'</div><div style="margin-top:10px">'+oq.replace('class="card"','class="card oq2"')+'</div>'};
 // ── CHARTS UNDER THE KPI METERS (Andrew, Oct 25 2026): Sales progression by month, then the true-pace fan chart; reuses S.progCard / pcFanCard
 S.kpiCharts=function(){var P=D.pace,PR=D.progress,ww=window.innerWidth,wide=ww>=1100,ph=ww<700;if(!PR&&!P)return '';
  /* same viewBox for both charts so they draw at equal height side by side; text sized via render options, not CSS scaling */
@@ -382,8 +382,10 @@ S.kpi=function(){var K=D.kpi;if(!K||!K.store)return '';var G=K.goals,St=K.store;
    meter('October MTD',nm.rate,p(nm.rate,0),null,0.25,'z',n(nm.cxl)+' cancelled + '+n(nm.ns)+' no-show of '+n(nm.n)+' opportunities with an appointment '+thr.split(' ')[0]+' 1–'+thr.split(' ')[1]+' (bar scale 0–25%)')+
    meter('Year to date',ny.rate,p(ny.rate,0),null,0.25,'z',n(ny.cxl)+' cancelled + '+n(ny.ns)+' no-show of '+n(ny.n)+' · same definition since Jan 1')+
    '<div class="kmn">Close to 100% minus the '+esc(HN)+' (it also counts sales entered with no appointment).</div>');
-  lcb='<div class="kgrid klc">'+c1+c2+c3+'</div><div class="kexp">'+esc(K.defs.lead_conv_note||'')+'</div>'}
- var h='<div class="card kpi" id="kpi"><h3>📏 Where we are vs goal <small>store · October MTD and year to date <span class="kleg"><i class="kg"></i>at/above goal <i class="ka"></i>slightly below <i class="kr"></i>well below <b></b>goal <i class="kz"></i>no goal</span></small></h3><div class="kgrid">'+cr+av+cv+'</div>'+lcb;
+  lcb='<div class="kgrid klc">'+c1+c2+c3+'</div><div class="kexp">'+esc(K.defs.lead_conv_note||'')+'</div>';
+  S.lcTop='<div class="card kpi klct" id="lctop"><h3>🔎 Lead conversion &amp; appointments <small>October MTD and year to date · ClosetWare dashboard definitions <span class="kleg"><i class="kz"></i>no goal, neutral color</span></small></h3>'+lcb+'</div>'}
+ else S.lcTop='';
+ var h='<div class="card kpi" id="kpi"><h3>📏 Where we are vs goal <small>store · October MTD and year to date <span class="kleg"><i class="kg"></i>at/above goal <i class="ka"></i>slightly below <i class="kr"></i>well below <b></b>goal</span></small></h3><div class="kgrid">'+cr+av+cv+'</div>';
  // by lead type
  function row(lab,v,txt,goal,max,st,nn){return '<div class="kr2"><span class="kl">'+lab+'</span>'+bar(v,goal,max,st,1)+'<span class="kv k'+st+'t">'+txt+'</span><span class="kn">'+nn+'</span></div>'}
  var T=K.types.map(function(t){var a=t.mtd,y=t.ytd,b='';
