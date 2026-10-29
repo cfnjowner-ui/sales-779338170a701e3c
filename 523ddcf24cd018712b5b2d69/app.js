@@ -64,7 +64,8 @@ function winCompare(){var h='<div class="card"><h3>Big picture: inside vs outsid
 var MCOL=['#6b8cbf','#3f9aa6','#8e6bbf','#c49a2c','#7f8ea3','#b0709b','#5aa9e6','#a0794f','#4a56a6','#7a869a','#3b7f8c','#9a6fb0'];
 var pview='usd';
 function pmonthColor(i){return MCOL[i%MCOL.length]}
-function progChart(mode,o){var P=D.progress,Ms=P.months,T=P.typical,w=o.w,h=o.h,fs=o.fs||11,pl=mode==='usd'?o.pl:38,pr=o.pr,pt=14,pb=22;
+var _tcx;function tW(t,fs,wt){try{_tcx=_tcx||document.createElement('canvas').getContext('2d');_tcx.font=(wt||400)+' '+fs+'px '+getComputedStyle(document.body).fontFamily;return _tcx.measureText(String(t)).width*1.06+2}catch(e){return String(t).length*fs*.66+2}}
+function progChart(mode,o){var P=D.progress,Ms=P.months,T=P.typical,w=o.w,h=o.h,fs=o.fs||11,pl=mode==='usd'?o.pl:38,pr=o.pr,pt=14,pb=22,occ=[];
  var cm=Ms[Ms.length-1],tfin=P.cmp?P.cmp.typ_final:0,max=0;
  Ms.forEach(function(x){if(mode==='usd'){max=Math.max(max,x.final)}});if(mode==='usd'&&P.cmp)max=Math.max(max,P.cmp.typ_final);
  if(mode==='pct')max=1;if(mode==='usd'&&D.plan)max=Math.max(max,D.plan.month_goal);max=mode==='usd'?Math.ceil(max/200000)*200000:1;
@@ -86,11 +87,21 @@ function progChart(mode,o){var P=D.progress,Ms=P.months,T=P.typical,w=o.w,h=o.h,
  var cp=cm.cum.map(function(v,j){return [X(j+1),Y(mode==='usd'?v:(tfin?v/tfin:0))]});
  s+='<path d="M'+cp.map(function(q){return q[0].toFixed(1)+' '+q[1].toFixed(1)}).join('L')+'" fill="none" stroke="#000" stroke-width="'+(o.cw||4)+'" stroke-linejoin="round" stroke-linecap="round"/>';
  if(cm.pend_n&&mode==='usd'){var fp=cm.cum_final.map(function(v,j){return [X(j+1),Y(v)]});s+='<path d="M'+fp.map(function(q){return q[0].toFixed(1)+' '+q[1].toFixed(1)}).join('L')+'" fill="none" stroke="#0d8a4e" stroke-width="2" stroke-dasharray="2 3"><title>Sold (Final) only</title></path>'}
- if(mode==='usd'&&D.plan){var pp=planPath();s+='<path d="M'+pp.map(function(q){return X(q[0]).toFixed(1)+' '+Y(q[1]).toFixed(1)}).join('L')+'" fill="none" stroke="#7b3fa0" stroke-width="2.4" stroke-dasharray="6 3"><title>Goal-back daily path to '+m(D.plan.month_goal)+'</title></path>';D.plan.checkpoints.forEach(function(c){s+='<circle cx="'+X(c.day)+'" cy="'+Y(c.cum_month)+'" r="4.5" fill="#7b3fa0" stroke="#fff" stroke-width="1.5"/><text x="'+(X(c.day)-5)+'" y="'+(Y(c.cum_month)-7)+'" text-anchor="end" font-size="'+fs+'" font-weight="700" fill="#7b3fa0">'+esc(c.label)+' '+m(c.cum_month)+'</text>'})}
+ if(mode==='usd'&&D.plan){var pp=planPath();s+='<path d="M'+pp.map(function(q){return X(q[0]).toFixed(1)+' '+Y(q[1]).toFixed(1)}).join('L')+'" fill="none" stroke="#7b3fa0" stroke-width="2.4" stroke-dasharray="6 3"><title>Goal-back daily path to '+m(D.plan.month_goal)+'</title></path>';D.plan.checkpoints.forEach(function(c){var cx=X(c.day),cy=Y(c.cum_month),t=esc(c.label)+' '+m(c.cum_month),tw=tW(c.label+' '+m(c.cum_month),fs,700),tx=cx-5,ty=cy-7,an='end';
+  /* keep goal labels inside the chart (Oct 29 2026): flip right of the dot if the left edge would clip, clamp right/top */
+  if(tx-tw<2){an='start';tx=Math.min(cx+7,w-2-tw)}if(ty-fs*.85<1)ty=cy+fs+6;
+  var bx=an==='end'?tx-tw:tx;occ.push({x1:bx,x2:bx+tw,y1:ty-fs*.85,y2:ty+fs*.25},{x1:cx-5,x2:cx+5,y1:cy-5,y2:cy+5});
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="4.5" fill="#7b3fa0" stroke="#fff" stroke-width="1.5"/><text x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" text-anchor="'+an+'" font-size="'+fs+'" font-weight="700" fill="#7b3fa0" class="pgoal" stroke="#fff" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke">'+t+'</text>'})}
  var last=cp[cp.length-1];s+='<circle cx="'+last[0]+'" cy="'+last[1]+'" r="5.5" fill="#000" stroke="#fff" stroke-width="2"/>';
- s+='<text x="'+(last[0]+8)+'" y="'+(last[1]-8)+'" font-size="'+(fs+1)+'" font-weight="800" fill="#000">'+cm.name+' '+m(cm.final)+'</text>';
  labs.sort(function(a,b){return a.y-b.y});for(var i=1;i<labs.length;i++)if(labs[i].y-labs[i-1].y<fs+1)labs[i].y=labs[i-1].y+fs+1;
- labs.forEach(function(l){s+='<text x="'+(w-pr+4)+'" y="'+(l.y+fs/3)+'" font-size="'+fs+'" font-weight="600" fill="'+l.c+'">'+l.t+'</text>'});
+ labs.forEach(function(l){s+='<text x="'+(w-pr+4)+'" y="'+(l.y+fs/3)+'" font-size="'+fs+'" font-weight="600" fill="'+l.c+'">'+l.t+'</text>';occ.push({x1:w-pr+2,x2:w,y1:l.y+fs/3-fs*.85,y2:l.y+fs/3+fs*.25})});
+ /* current-month end label (Oct 29 2026 fix): measured, kept inside the viewBox, placed where it does not hit the month / goal labels */
+ var cfs=fs+1,ct=cm.name+' '+m(cm.final),ctw=tW(ct,cfs,800),lx=last[0],ly=last[1],cands=[['start',lx+8,ly-8],['end',lx-8,ly-8],['middle',lx,ly-11],['end',lx-8,ly+cfs+6],['end',lx-9,ly-cfs-10],['end',lx-9,ly+2*cfs+8]],best=null;
+ cands.forEach(function(c){var x1=c[0]==='start'?c[1]:c[0]==='end'?c[1]-ctw:c[1]-ctw/2,b={x1:x1,x2:x1+ctw,y1:c[2]-cfs*.85,y2:c[2]+cfs*.25};
+  if(b.x1<2||b.x2>w-2||b.y1<1||b.y2>h-pb)return;var ov=0;occ.forEach(function(o){var dx=Math.min(b.x2,o.x2)-Math.max(b.x1,o.x1),dy=Math.min(b.y2,o.y2)-Math.max(b.y1,o.y1);if(dx>0&&dy>0)ov+=dx*dy});
+  if(!best||ov<best.ov)best={a:c[0],x:c[1],y:c[2],ov:ov}});
+ if(!best)best={a:'end',x:Math.max(Math.min(lx-8,w-2),ctw+2),y:Math.max(ly-8,cfs)};
+ s+='<text x="'+best.x.toFixed(1)+'" y="'+best.y.toFixed(1)+'" text-anchor="'+best.a+'" font-size="'+cfs+'" font-weight="800" fill="#000" class="pcur" stroke="#fff" stroke-width="3" stroke-linejoin="round" paint-order="stroke">'+ct+'</text>';
  s+='<text x="'+(X(10)+3)+'" y="'+(pt+fs)+'" font-size="'+(fs-1)+'" fill="#8a8470">day 10</text><text x="'+(X(20)+3)+'" y="'+(pt+fs)+'" font-size="'+(fs-1)+'" fill="#8a8470">day 20</text><text x="'+(X(22)+3)+'" y="'+(h-pb-5)+'" font-size="'+(fs-1)+'" fill="#8a8470">last 10 days</text>';
  return s+'</svg>'}
 function progLegend(mode){var P=D.progress,cm=P.months[P.months.length-1];return '<div class="legend" style="margin-top:4px">'+(D.plan&&mode==='usd'?'<span style="--c:#7b3fa0"><b>goal-back daily path</b> (checkpoints '+D.plan.checkpoints.map(function(c){return esc(c.label)+' '+m(c.cum_month)}).join(', ')+')</span>':'')+(cm.pend_n?'<span style="--c:#0d8a4e">green dotted = this month, Sold (Final) only; black line adds '+m(cm.pend_usd)+' pending Final</span>':'')+'<span style="--c:#000"><b>'+cm.name+' (this month, through day '+cm.upto+')</b></span><span style="--c:#14171c;opacity:.8">typical month = median of '+P.months.filter(function(x){return !x.cur}).length+' completed months (dashed)</span>'+(mode==='pct'?'<span class="note">'+cm.name+' shown as % of the <b>typical</b> month total (its own final is not known yet); completed months as % of their own final</span>':'<span class="note">completed months drawn full length; shaded = last 10 days</span>')+'</div>'}
