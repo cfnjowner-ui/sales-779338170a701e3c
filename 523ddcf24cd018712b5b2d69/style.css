@@ -291,3 +291,7 @@ body.tv .cmbig{font-size:46px}body.tv .cmf{font-size:16px}body.tv .cmf b{font-si
 .kc .kmn+.kmn{margin-top:4px}
 @media (min-width:1100px){.kt .kzr{grid-template-columns:22px minmax(20px,1fr) 38px 56px}}
 @media (max-width:900px){.klc{grid-template-columns:1fr}}
+
+/* heat map client phone (Oct 29 2026) */
+.hl .a .hph{display:inline-block;margin:1px 0 0;font-size:12px;font-weight:600;color:#0b5cad;text-decoration:none;font-variant-numeric:tabular-nums;white-space:nowrap}.hl .a a.hph:hover{text-decoration:underline}.hl .a .hph.dnc{color:#b42318}.hl .a .hph.none{color:var(--mut);font-weight:400}
+.hl .a b+.hph{margin-left:6px}
