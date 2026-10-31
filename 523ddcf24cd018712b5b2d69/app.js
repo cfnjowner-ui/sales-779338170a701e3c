@@ -355,13 +355,41 @@ S.month=function(part){var M=D.month,s=M.stats,pv=M.prior_same,pf=M.prior_full,p
  if(part==='c')return c;
  var KPH=S.kpi();return (S.lcTop||'')+ban+KPH+S.kpiCharts()+S.pace('m')+'<div style="margin-top:10px">'+S.heat()+'</div>'+'<div style="margin-top:10px">'+S.next3()+'</div>'+S.focus()+'<div style="margin-top:10px">'+a.slice(ban.length)+'</div>'+CMC+T+'<div class="grid g2" style="margin-top:10px"><div class="stack">'+cmp+src+wins+'</div>'+dsg+'</div><div style="margin-top:10px">'+oq.replace('class="card"','class="card oq2"')+'</div>'};
 // ── CHARTS UNDER THE KPI METERS (Andrew, Oct 25 2026): Sales progression by month, then the true-pace fan chart; reuses S.progCard / pcFanCard
-S.kpiCharts=function(){var P=D.pace,PR=D.progress,ww=window.innerWidth,wide=ww>=1100,ph=ww<700;if(!PR&&!P)return '';
+// ── LAST DAY OF THE MONTH (Andrew, Oct 31 2026): 'Landing <Month>' live chart of TODAY by hour (D.lastday from lastday.py; null on other days)
+var LD_NOTE='Zoomed in on today only. The line starts at the month total at the start of today and steps up at the time of each sale counted today (designer first name and amount). Dashed lines are the $1M and $1.1M marks (and the month goal when it fits the scale); the dotted line is the latest refresh (“now”). Times: ClosetWare time the deal moved to Sold; owner-confirmed sales at the time they were added to the board; a sale with only a date is placed at the refresh where it first appeared. Updates with every hourly refresh.';
+function ldHr(h){h=Math.round(h);if(h===0||h===24)return '12a';if(h===12)return '12p';return h<12?h+'a':(h-12)+'p'}
+function ldChart(L,o){o=o||{};var w=o.w||640,h=o.h||300,fs=o.fs||11,pl=50,pr=12,pt=14,pb=24,h0=L.h0,h1=L.h1;
+ var lines=[{v:L.marks[0],t:'$1M',c:'#1b7a3e'},{v:L.marks[1],t:'$1.1M',c:'#0f766e'}];var gIn=L.goal&&L.goal<=Math.max(L.total,L.marks[1])*1.04;if(gIn)lines.push({v:L.goal,t:'Month goal '+m(L.goal),c:'#7b3fa0'});   /* goal line only when it fits the zoomed scale; else in the header */
+ var top=Math.max(L.total,L.marks[1],gIn?L.goal:0),lo=Math.min(L.baseline,L.total),ymin=Math.max(0,lo-(top-lo)*0.08),ymax=top+(top-lo)*0.05;
+ function X(x){return pl+(w-pl-pr)*(Math.min(Math.max(x,h0),h1)-h0)/(h1-h0)}function Y(v){return pt+(h-pt-pb)*(1-(v-ymin)/(ymax-ymin))}
+ var s='<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="Today by hour: month total so far" style="display:block">';
+ for(var g=0;g<=4;g++){var v=ymin+(ymax-ymin)*g/4,y=Y(v);s+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+y+'" y2="'+y+'" stroke="#eee"/><text x="'+(pl-4)+'" y="'+(y+3)+'" text-anchor="end" font-size="'+fs+'" fill="#889">'+m(v)+'</text>'}
+ var step=(w<450?4:2);for(var hh=Math.ceil(h0);hh<=h1;hh++)if((hh-Math.ceil(h0))%step===0||hh===h1)s+='<text x="'+X(hh)+'" y="'+(h-7)+'" text-anchor="middle" font-size="'+fs+'" fill="#889">'+ldHr(hh)+'</text>';
+ lines.forEach(function(q){var y=Y(q.v);s+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+y+'" y2="'+y+'" stroke="'+q.c+'" stroke-width="1.6" stroke-dasharray="6 4"/><text x="'+(pl+4)+'" y="'+(y-4)+'" font-size="'+fs+'" font-weight="700" fill="'+q.c+'">'+esc(q.t)+'</text>'});
+ var yb=Y(L.baseline);s+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+yb+'" y2="'+yb+'" stroke="#9aa3b2" stroke-width="1.2" stroke-dasharray="2 3"/><text x="'+(w-pr-4)+'" y="'+(yb+fs+3)+'" text-anchor="end" font-size="'+fs+'" fill="#667">start of today '+m(L.baseline)+'</text>';
+ var xn=X(L.now_h),d='M'+X(h0).toFixed(1)+' '+yb.toFixed(1),c=L.baseline;
+ L.sales.forEach(function(x){var xx=X(x.h).toFixed(1);d+='L'+xx+' '+Y(c).toFixed(1);c=x.cum;d+='L'+xx+' '+Y(c).toFixed(1)});d+='L'+xn.toFixed(1)+' '+Y(c).toFixed(1);
+ s+='<path d="'+d+'L'+xn.toFixed(1)+' '+yb.toFixed(1)+'Z" fill="#1b7a3e1f"/><path d="'+d+'" fill="none" stroke="#12263f" stroke-width="3" stroke-linejoin="round"/>';
+ s+='<line x1="'+xn+'" x2="'+xn+'" y1="'+pt+'" y2="'+(h-pb)+'" stroke="#555" stroke-dasharray="2 3"/><circle cx="'+xn+'" cy="'+Y(L.total)+'" r="5" fill="#1b7a3e"/>';
+ var nr=xn>w-pr-120;s+='<text x="'+(nr?xn-6:xn+6)+'" y="'+(Y(L.total)-8)+'" text-anchor="'+(nr?'end':'start')+'" font-size="'+(fs+2)+'" font-weight="800" fill="#1b7a3e">'+m(L.total)+'</text><text x="'+(nr?xn-6:xn+6)+'" y="'+(pt+fs)+'" text-anchor="'+(nr?'end':'start')+'" font-size="'+fs+'" fill="#555">now '+esc(L.now_t)+'</text>';
+ var boxes=[];L.sales.forEach(function(x){var xx=X(x.h),yy=Y(x.cum),t=esc(x.des)+' +'+m(x.usd),tw=t.length*fs*0.58,lx=xx-4-tw,ly=yy-6;if(lx<pl+2)lx=xx+6;
+  for(var k=0;k<20;k++){var hit=boxes.some(function(b){return lx<b.x+b.w&&lx+tw>b.x&&Math.abs(ly-b.y)<fs+2});if(!hit)break;ly-=fs+3}
+  boxes.push({x:lx,y:ly,w:tw});s+='<circle cx="'+xx+'" cy="'+yy+'" r="3.5" fill="#12263f"/><text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" font-size="'+fs+'" font-weight="700" fill="#12263f">'+t+'</text>'});
+ return s+'</svg><div class="fxleg"><span style="--c:#12263f">month total through today (steps = each sale today)</span><span style="--c:#9aa3b2">start of today</span><span style="--c:#1b7a3e">$1M</span><span style="--c:#0f766e">$1.1M</span>'+(gIn?'<span style="--c:#7b3fa0">month goal</span>':'')+'</div>'}
+function ldHead(L){var to=L.marks[0]-L.total,t2=L.marks[1]-L.total;
+ return '<div class="ldhead"><span><b>'+L.today_n+'</b> sale'+(L.today_n===1?'':'s')+' today · <b>+'+mf(L.today_usd)+'</b></span><span>Month so far <b>'+mf(L.total)+'</b></span><span>'+(to>0?mf(to)+' to go to $1M':'<b>Past $1M</b>')+'</span><span>'+(t2>0?mf(t2)+' to $1.1M':'<b>Past $1.1M</b>')+'</span>'+(L.goal?'<span>Month goal '+mf(L.goal)+'</span>':'')+'</div>'}
+function ldCard(L,fo){return '<div class="card fx pcfan ldcard"><h3>Landing '+esc(L.label)+' <small>today, '+esc(L.date)+', by hour · as of '+esc(L.now_t)+' ET</small></h3>'+ldHead(L)+ldChart(L,fo)+'</div>'}
+function ldInfo(L){var nt=L.n_seen?' '+L.n_seen+' sale'+(L.n_seen===1?'':'s')+' had only a date and '+(L.n_seen===1?'is':'are')+' placed at the refresh where '+(L.n_seen===1?'it':'they')+' first appeared.':'';
+ return '<div class="card kc-info"><div class="ihead">Landing '+esc(L.label)+': how to read it</div><div class="note">'+LD_NOTE+nt+'</div></div>'}
+S.kpiCharts=function(){var P=D.pace,PR=D.progress,LD=D.lastday,ww=window.innerWidth,wide=ww>=1100,ph=ww<700;if(!PR&&!P&&!LD)return '';
  /* same viewBox for both charts so they draw at equal height side by side; text sized via render options, not CSS scaling */
  var po=ph?{w:370,h:280,fs:10,pl:42,pr:30,cw:3.4}:wide?{w:620,h:340,fs:11,pl:46,pr:40,cw:3.6}:{w:760,h:330,fs:11,pl:48,pr:40},fo=ph?{w:360,h:270,fs:10.5}:wide?{w:620,h:340,fs:11}:{w:760,h:330,fs:11};
  var pc=PR?'<div class="card prog kc-prog"><h3>Sales progression by month, 2026 <small>cumulative sold by day</small> '+progToggle()+'</h3>'+progChart(pview,po)+progLegend(pview)+'</div>':'';
  var fc=P?'<div class="card fx pcfan"><h3>Fan chart <small>sold vs goal pace vs typical month</small></h3>'+pcFan(P,fo)+'</div>':'';
+ if(LD)fc=ldCard(LD,fo);   /* last day of the month: Landing chart replaces the fan chart slot */
  var pi=PR?'<div class="card kc-info"><div class="ihead">Sales progression: what the data says</div>'+progInsights()+progCompare()+'</div>':'';
  var fi=P?'<div class="card kc-info"><div class="ihead">Fan chart: how to read it</div><div class="note">'+FAN_NOTE+'</div></div>':'';
+ if(LD)fi=ldInfo(LD);
  var st=PR?'<div class="card kc-strip"><div class="note" style="margin:0 0 6px">Share of each month\'s sales closed by <b>day 10</b>, <b>day 20</b> and in the <b>last 10 days</b> (bars: days 1–10 / 11–20 / 21–end). Fast starter = ≥'+Math.round(PR.thresholds.fast_d10*100)+'% by day 10; Back-loaded = ≥'+Math.round(PR.thresholds.back_last10*100)+'% in the last 10 days; otherwise Balanced.</div>'+progStrip()+'</div>':'';
  return '<div class="kpich" id="kpich"><div class="kcrow">'+pc+fc+'</div><div class="kcrow kcinfo">'+pi+fi+'</div>'+st+'</div>'};
 // ── KPI METERS vs GOAL (Oct 23 2026; goals from kpi_goals.json -> data.kpi; hidden when data.kpi is absent)
