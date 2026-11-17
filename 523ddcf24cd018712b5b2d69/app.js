@@ -383,6 +383,26 @@ function ldHead(L){var hd='<div class="ldhead"><span><b>'+L.today_n+'</b> sale'+
 function ldCard(L,fo){return '<div class="card fx pcfan ldcard"><h3>Landing '+esc(L.label)+' <small>today, '+esc(L.date)+', by hour · as of '+esc(L.now_t)+' ET</small></h3>'+ldHead(L)+ldChart(L,fo)+'</div>'}
 function ldInfo(L){var nt=L.n_seen?' '+L.n_seen+' sale'+(L.n_seen===1?'':'s')+' had only a date and '+(L.n_seen===1?'is':'are')+' placed at the refresh where '+(L.n_seen===1?'it':'they')+' first appeared.':'';
  return '<div class="card kc-info"><div class="ihead">Landing '+esc(L.label)+': how to read it</div><div class="note">'+LD_NOTE+nt+'</div></div>'}
+// ── COST PER LEAD / OPPORTUNITY (Nov 17 2026, cpl.py). Renders ONLY when data.cpl exists; refresh.py COST_PER_LEAD_ENABLED=False keeps it out of the published data.
+function cplCard(){var C=D.cpl;if(!C||!C.ytd||!C.last)return '';
+ function d0(v){return v==null?'<span class="mut">—</span>':mf(v)}
+ function pc(v){return v==null?'<span class="mut">—</span>':(v*100).toFixed(1)+'%'}
+ var L=C.last,Y=C.ytd,ml=esc(C.last_label.split(' ')[0]);
+ var rows=[['Cost per lead','cpl',d0],['Cost per opportunity','cpo',d0],['Cost per sale','cps',d0],['Spend as % of sales $','pct',pc]];
+ var h='<div class="card kc-info" id="cpl"><div class="ihead">Cost per lead &amp; opportunity <small class="mut">'+esc(C.label)+', through '+esc(C.through)+'</small></div>';
+ h+='<div class="note" style="margin:2px 0 6px">'+(C.cur_has_spend?'':esc(C.cur_label.split(' ')[0])+' spend is not in yet, so this shows <b>'+esc(C.last_label)+'</b> (latest final month) and <b>'+esc(C.ytd_label)+'</b>. ')+'<b>Non-retail</b> leaves out Costco and Lowe\'s leads, opportunities and sales: their cost is a program fee per sale, not in this spend.</div>';
+ h+='<div class="scroll"><table class="tbl pct cplt"><tr><th></th><th>'+ml+'<br>all</th><th>'+ml+'<br>non-retail</th><th>YTD<br>all</th><th>YTD<br>non-retail</th></tr>';
+ h+=rows.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[2](L.all[r[1]])+'</td><td><b>'+r[2](L.nonretail[r[1]])+'</b></td><td>'+r[2](Y.all[r[1]])+'</td><td><b>'+r[2](Y.nonretail[r[1]])+'</b></td></tr>'}).join('');
+ h+='<tr class="tot"><td>Lead-gen spend</td><td colspan="2" style="text-align:center">'+mf(L.spend)+'</td><td colspan="2" style="text-align:center">'+mf(Y.spend)+'</td></tr>';
+ [['Leads created','leads',n],['Opportunities created','opps',n],['Sales','sales',n],['Sold $','sales_usd',m]].forEach(function(r){h+='<tr><td class="mut">'+r[0]+'</td><td class="mut">'+r[2](L.all[r[1]])+'</td><td class="mut">'+r[2](L.nonretail[r[1]])+'</td><td class="mut">'+r[2](Y.all[r[1]])+'</td><td class="mut">'+r[2](Y.nonretail[r[1]])+'</td></tr>'});
+ h+='</table></div>';
+ h+='<div class="ihead" style="margin-top:10px">By month <small class="mut">all / non-retail</small></div><div class="scroll"><table class="tbl pct cplt"><tr><th>Month</th><th>Spend</th><th>Per lead</th><th>Per opp</th><th>Per sale</th></tr>';
+ h+=C.months.map(function(r){function two(k){return d0(r.all[k])+' <span class="mut">/</span> '+d0(r.nonretail[k])}
+   return '<tr'+(r.m===C.last_month?' class="cur"':'')+'><td>'+esc(r.label)+'</td><td>'+m(r.spend)+'</td><td>'+two('cpl')+'</td><td>'+two('cpo')+'</td><td>'+two('cps')+'</td></tr>'}).join('');
+ h+='</table></div>';
+ var P=Y.parts;
+ h+='<div class="note" style="margin-top:6px">How these are measured. Spend = QuickBooks lead-gen lines from the Financial Workbook ('+esc(C.ytd_label)+': Internet, QB 6033 '+m(P.internet)+'; paid advertising '+m(P.paid)+'; social media '+m(P.social)+'). The spend has no split by lead source, so these are totals only. Costco and Lowe\'s program fees are not included. Leads = ClosetWare NJ leads created in the month (all lead records). Opportunities = NJ opportunities created in the month (bay records left out; includes '+n(Y.designer_opps)+' designer-created YTD). Sales = board sales by sale date. Cost per X = spend ÷ X for the same month. Spend file updated '+esc(C.file_asof)+'.</div></div>';
+ return h}
 S.kpiCharts=function(){var P=D.pace,PR=D.progress,LD=D.lastday,ww=window.innerWidth,wide=ww>=1100,ph=ww<700;if(!PR&&!P&&!LD)return '';
  /* same viewBox for both charts so they draw at equal height side by side; text sized via render options, not CSS scaling */
  var po=ph?{w:370,h:280,fs:10,pl:42,pr:30,cw:3.4}:wide?{w:620,h:340,fs:11,pl:46,pr:40,cw:3.6}:{w:760,h:330,fs:11,pl:48,pr:40},fo=ph?{w:360,h:270,fs:10.5}:wide?{w:620,h:340,fs:11}:{w:760,h:330,fs:11};
@@ -393,6 +413,7 @@ S.kpiCharts=function(){var P=D.pace,PR=D.progress,LD=D.lastday,ww=window.innerWi
  var fi=P?'<div class="card kc-info"><div class="ihead">Fan chart: how to read it</div><div class="note">'+FAN_NOTE+'</div></div>':'';
  if(LD)fi=ldInfo(LD);
  var st=PR?'<div class="card kc-strip"><div class="note" style="margin:0 0 6px">Share of each month\'s sales closed by <b>day 10</b>, <b>day 20</b> and in the <b>last 10 days</b> (bars: days 1–10 / 11–20 / 21–end). Fast starter = ≥'+Math.round(PR.thresholds.fast_d10*100)+'% by day 10; Back-loaded = ≥'+Math.round(PR.thresholds.back_last10*100)+'% in the last 10 days; otherwise Balanced.</div>'+progStrip()+'</div>':'';
+ var cc=cplCard();if(cc)fi='<div class="kccol">'+fi+cc+'</div>';   /* cost per lead (only when data.cpl exists): stacked under the fan-chart note, right column */
  return '<div class="kpich" id="kpich"><div class="kcrow">'+pc+fc+'</div><div class="kcrow kcinfo">'+pi+fi+'</div>'+st+'</div>'};
 // ── KPI METERS vs GOAL (Oct 23 2026; goals from kpi_goals.json -> data.kpi; hidden when data.kpi is absent)
 S.kpi=function(){var K=D.kpi;if(!K||!K.store)return '';var G=K.goals,St=K.store;

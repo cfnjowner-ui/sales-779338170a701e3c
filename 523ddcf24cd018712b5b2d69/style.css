@@ -323,3 +323,10 @@ body.tv .n3r{font-size:15px;grid-template-columns:16px minmax(0,1fr) 60px 28px 7
 .n3rg{display:inline-block;padding:1px 7px;border-radius:10px;background:#dfe8fb;color:#23407a;font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums}
 .n3e{margin:2px 0 3px}.n3e b{color:#23407a}
 body.tv .n3est3{font-size:17px}body.tv .n3est3 b{font-size:20px}
+
+/* Cost per lead card (Nov 17 2026; shows only when data.cpl exists) */
+.kccol{display:flex;flex-direction:column;gap:10px;min-width:0}
+#cpl .ihead small{font-weight:400;font-size:11px;text-transform:none;letter-spacing:0}
+.tbl.cplt td,.tbl.cplt th{padding:4px 5px;font-size:12px}
+.tbl.cplt th{font-size:10.5px}
+@media (max-width:700px){.tbl.cplt td,.tbl.cplt th{font-size:11px;padding:3px 4px}}
